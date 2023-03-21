@@ -1,4 +1,4 @@
-module listitapp
+module github.com/AfsanehHabibi/list-manager
 
 go 1.20
 
