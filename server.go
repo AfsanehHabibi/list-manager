@@ -8,6 +8,6 @@ import (
 func main()  {
 	e := echo.New()
 	h := handler.NewHandler("list")
-	h.Register(e.Group(""))
+	h.Register(e.Group("api"))
 	e.Logger.Fatal(e.Start(":1323"))
 }
