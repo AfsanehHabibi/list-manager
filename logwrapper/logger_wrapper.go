@@ -1,34 +1,47 @@
 package logwrapper
 
 import (
-  "github.com/sirupsen/logrus"
+	"github.com/sirupsen/logrus"
+	"os"
 )
 
 type Event struct {
-  id      int
-  message string
+	id      int
+	message string
 }
 
-type Logger struct {
-  *logrus.Logger
+type Logrus struct {
+	*logrus.Logger
 }
 
-func NewLogger() *Logger {
+func NewLogger() *Logrus {
 	var baseLogger = logrus.New()
-	var logger = &Logger{baseLogger}
+	file, err := os.OpenFile("logrus.log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+	if err == nil {
+		baseLogger.SetOutput(file)
+	} else {
+		baseLogger.Info("Failed to log to file, using default stderr")
+	}
+	var logger = &Logrus{baseLogger}
 	logger.Formatter = &logrus.JSONFormatter{}
 	return logger
 }
 
 var (
-  databaseConnectionFailureMessage      = Event{1, "Failed to connect to database: %s"}
-  serverStartFailureMessage = Event{2, "Failed to start server on port: %d"}
+	databaseConnectionFailureMessage = Event{1, "Failed to connect to database"}
+	serverStartFailureMessage        = Event{2, "Failed to start server"}
 )
 
-func (l *Logger) DatabaseConnectionFailure(argumentName string) {
-  l.Panicf(databaseConnectionFailureMessage.message, argumentName)
+func (l *Logrus) DatabaseConnectionFailure(databaseName string, err error) {
+	l.WithFields(logrus.Fields{
+		"error": err,
+		"id":    databaseConnectionFailureMessage.id,
+	}).Panic(databaseConnectionFailureMessage.message)
 }
 
-func (l *Logger) ServerStartFailure(argumentName int) {
-  l.Errorf(serverStartFailureMessage.message, argumentName)
+func (l *Logrus) ServerStartFailure(port int, err error) {
+	l.WithFields(logrus.Fields{
+		"error": err,
+		"id":    serverStartFailureMessage.id,
+	}).Error(serverStartFailureMessage.message)
 }
