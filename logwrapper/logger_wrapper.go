@@ -39,7 +39,7 @@ func (l Logrus) DatabaseConnectionFailure(databaseName string, err error) {
 		"error": err,
 		"id":    databaseConnectionFailureMessage.id,
 		"name":  databaseName,
-	}).Panic(databaseConnectionFailureMessage.message)
+	}).Fatal(databaseConnectionFailureMessage.message)
 }
 
 func (l Logrus) ServerStartFailure(port int, err error) {
@@ -47,14 +47,14 @@ func (l Logrus) ServerStartFailure(port int, err error) {
 		"error": err,
 		"id":    serverStartFailureMessage.id,
 		"port":  port,
-	}).Error(serverStartFailureMessage.message)
+	}).Panic(serverStartFailureMessage.message)
 }
 
 func (l Logrus) ServerStartSuccess(port int) {
 	l.WithFields(logrus.Fields{
 		"id":   serverStartSuccessMessage.id,
 		"port": port,
-	}).Error(serverStartSuccessMessage.message)
+	}).Info(serverStartSuccessMessage.message)
 }
 
 func (l Logrus) DatabaseConnectionSuccess(databaseName string) {
